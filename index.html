@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DhassCSC Pro Trading Suite - முழு டிரேடிங் தளம்</title>
+    
+    <!-- Chart.js without adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Toast notifications -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #1a237e;
+            --secondary: #2962ff;
+            --success: #00c853;
+            --danger: #ff3d00;
+            --warning: #ffab00;
+            --info: #00b8d4;
+            --light: #f5f7ff;
+            --dark: #0d1b2a;
+            --profit: #00e676;
+            --loss: #ff5252;
+            --buy: #00c853;
+            --sell: #ff3d00;
+            --shadow: 0 6px 12px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c2461 0%, #1e3799 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* Login Modal */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0c2461 0%, #1e3799 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .login-box {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-logo {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .login-input:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.2);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-bg);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .login-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .login-links a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        /* Main App */
+        .main-app {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            margin: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+        }
+        
+        .logo-text h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .logo-text .subtitle {
+            color: var(--secondary);
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        /* User Info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* Real-time Clock */
+        .realtime-clock {
+            background: var(--gradient-bg);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 160px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .clock-time {
+            font-size: 1.6rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        
+        .clock-date {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        
+        .market-status {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 6px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            gap: 15px;
+            padding: 0 15px 15px;
+            min-height: calc(100vh - 100px);
+        }
+        
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 280px 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .user-info {
+                flex-direction: column;
+            }
+        }
+        
+        /* Left Panel */
+        .left-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+            max-height: calc(100vh - 130px);
+        }
+        
+        /* Center Panel */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* Right Panel */
+        .right-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+            max-height: calc(100vh - 130px);
+        }
+        
+        /* Balance Card */
+        .balance-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+        }
+        
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            height: 350px;
+            position: relative;
+        }
+        
+        /* Watchlist */
+        .watchlist-container {
+            margin-top: 20px;
+        }
+        
+        .watchlist-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .watchlist-table th {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        
+        .watchlist-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .positive {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .negative {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        /* Fund Management */
+        .fund-management {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-top: 15px;
+        }
+        
+        .fund-input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .fund-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        /* Indicators */
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .indicator-card {
+            background: var(--light);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .indicator-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .indicator-card.active {
+            border-left-color: var(--success);
+            background: #e8f5e9;
+        }
+        
+        /* Trading Terminal */
+        .trading-terminal {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .quick-order {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .order-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--secondary);
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            gap: 15px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+        
+        /* Tamil Text */
+        .tamil {
+            font-family: 'Latha', 'Tahoma', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            
+            <h2 class="tamil">DhassCSC Pro Trading Suite</h2>
+            <p class="tamil" style="color: #666; margin-bottom: 25px;">உள்நுழைந்து தொடங்கவும்</p>
+            
+            <input type="text" class="login-input tamil" id="loginUsername" placeholder="பயனர்பெயர்">
+            <input type="password" class="login-input tamil" id="loginPassword" placeholder="கடவுச்சொல்">
+            
+            <button class="login-btn tamil" onclick="handleLogin()">
+                <i class="fas fa-sign-in-alt"></i> உள்நுழைய
+            </button>
+            
+            <div class="login-links">
+                <a href="#" class="tamil" onclick="showRegister()">புதிய கணக்கு</a>
+                <a href="#" class="tamil">கடவுச்சொல் மறந்தீர்களா?</a>
+            </div>
+            
+            <div id="demoCredentials" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <p class="tamil" style="font-size: 12px; color: #666; margin-bottom: 5px;">டெமோ கணக்கு:</p>
+                <p class="tamil" style="font-size: 12px;"><strong>பயனர்பெயர்:</strong> admin</p>
+                <p class="tamil" style="font-size: 12px;"><strong>கடவுச்சொல்:</strong> admin123</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div class="login-modal" id="registerModal" style="display: none;">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            
+            <h2 class="tamil">புதிய கணக்கு</h2>
+            
+            <input type="text" class="login-input tamil" id="regName" placeholder="முழு பெயர்">
+            <input type="email" class="login-input tamil" id="regEmail" placeholder="மின்னஞ்சல்">
+            <input type="text" class="login-input tamil" id="regPhone" placeholder="தொலைபேசி எண்">
+            <input type="text" class="login-input tamil" id="regUsername" placeholder="பயனர்பெயர்">
+            <input type="password" class="login-input tamil" id="regPassword" placeholder="கடவுச்சொல்">
+            <input type="number" class="login-input tamil" id="regAmount" placeholder="ஆரம்ப தொகை (₹)">
+            
+            <button class="login-btn tamil" onclick="handleRegister()">
+                <i class="fas fa-user-plus"></i> பதிவு செய்க
+            </button>
+            
+            <div class="login-links">
+                <a href="#" class="tamil" onclick="showLogin()">ஏற்கனவே கணக்கு உள்ளதா?</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div class="loading" id="loadingSpinner">
+        <div class="spinner"></div>
+        <p class="tamil" id="loadingText">ஏற்றுகிறது...</p>
+    </div>
+    
+    <!-- Main Application -->
+    <div class="main-app" id="mainApp">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">
+                    <h2 class="tamil">DhassCSC Pro Trading</h2>
+                    <p class="subtitle tamil">AI பகுப்பாய்வு & டிரேடிங்</p>
+                </div>
+            </div>
+            
+            <!-- Real-time Clock -->
+            <div class="realtime-clock" id="realtimeClock">
+                <div class="clock-time">00:00:00</div>
+                <div class="clock-date tamil">திங்கள், 01 ஜனவரி 2024</div>
+                <div class="market-status tamil">சந்தை மூடியது</div>
+            </div>
+            
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div class="user-name tamil" id="userName">நிர்வாகி</div>
+                    <div class="tamil" style="font-size: 12px; color: #666;">கடைசி உள்நுழைவு: இப்போது</div>
+                </div>
+                <button class="logout-btn tamil" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> வெளியேறு
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Left Panel - Balance & Indicators -->
+            <div class="left-panel">
+                <!-- Balance Card -->
+                <div class="balance-card">
+                    <h3 class="tamil"><i class="fas fa-wallet"></i> கணக்கு இருப்பு</h3>
+                    <div class="balance-amount" id="currentBalance">₹1,00,000.00</div>
+                    
+                    <div class="balance-actions">
+                        <button class="btn btn-success" onclick="addFunds()">
+                            <i class="fas fa-plus"></i> தொகை சேர்
+                        </button>
+                        <button class="btn btn-danger" onclick="withdrawFunds()">
+                            <i class="fas fa-minus"></i> தொகை எடு
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Indicators -->
+                <div style="margin-top: 20px;">
+                    <h3 class="tamil"><i class="fas fa-chart-line"></i> இண்டிகேட்டர்கள்</h3>
+                    <div class="indicators-grid">
+                        <div class="indicator-card active" onclick="toggleIndicator('MA')">
+                            <div class="tamil">MA (20)</div>
+                            <div style="font-size: 12px; color: #666;">Moving Average</div>
+                        </div>
+                        <div class="indicator-card" onclick="toggleIndicator('RSI')">
+                            <div class="tamil">RSI (14)</div>
+                            <div style="font-size: 12px; color: #666;">Relative Strength</div>
+                        </div>
+                        <div class="indicator-card" onclick="toggleIndicator('MACD')">
+                            <div class="tamil">MACD</div>
+                            <div style="font-size: 12px; color: #666;">Trend Momentum</div>
+                        </div>
+                        <div class="indicator-card" onclick="toggleIndicator('BB')">
+                            <div class="tamil">Bollinger Bands</div>
+                            <div style="font-size: 12px; color: #666;">Volatility</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fund Management -->
+                <div class="fund-management">
+                    <h3 class="tamil"><i class="fas fa-money-bill-wave"></i> நிதி மேலாண்மை</h3>
+                    
+                    <div class="fund-input-group">
+                        <input type="number" class="fund-input" id="fundAmount" placeholder="தொகை" min="1">
+                        <select class="fund-input" id="fundMethod">
+                            <option value="UPI">UPI</option>
+                            <option value="BANK">வங்கி</option>
+                            <option value="CARD">கார்டு</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="quickAddFunds()">
+                            <i class="fas fa-plus-circle"></i> சேர்
+                        </button>
+                        <button class="btn btn-warning" style="flex: 1;" onclick="viewTransactions()">
+                            <i class="fas fa-history"></i> வரலாறு
+                        </button>
+                    </div>
+                    
+                    <div id="transactionsList" style="margin-top: 15px; display: none;">
+                        <!-- Transactions will appear here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Panel - Chart & Trading -->
+            <div class="center-panel">
+                <!-- Chart -->
+                <div class="chart-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                        <h3 class="tamil" id="chartTitle">RELIANCE - லைன் சார்ட்</h3>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-small btn-info" onclick="changeTimeframe('1m')">1M</button>
+                            <button class="btn btn-small btn-info active" onclick="changeTimeframe('5m')">5M</button>
+                            <button class="btn btn-small btn-info" onclick="changeTimeframe('15m')">15M</button>
+                        </div>
+                    </div>
+                    <canvas id="tradingChart"></canvas>
+                </div>
+                
+                <!-- Trading Terminal -->
+                <div class="trading-terminal">
+                    <h3 class="tamil"><i class="fas fa-terminal"></i> டிரேடிங் டெர்மினல்</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                        <!-- Buy Section -->
+                        <div>
+                            <h4 class="tamil" style="color: var(--success); margin-bottom: 10px;">
+                                <i class="fas fa-arrow-up"></i> வாங்கவும்
+                            </h4>
+                            <div class="quick-order">
+                                <input type="text" class="order-input" id="buySymbol" placeholder="சின்னம்" value="RELIANCE">
+                                <input type="number" class="order-input" id="buyQuantity" placeholder="அளவு" value="1">
+                            </div>
+                            <button class="btn btn-success" style="width: 100%; margin-top: 10px;" onclick="placeBuyOrder()">
+                                <i class="fas fa-check"></i> வாங்க ஆர்டர்
+                            </button>
+                        </div>
+                        
+                        <!-- Sell Section -->
+                        <div>
+                            <h4 class="tamil" style="color: var(--danger); margin-bottom: 10px;">
+                                <i class="fas fa-arrow-down"></i> விற்கவும்
+                            </h4>
+                            <div class="quick-order">
+                                <input type="text" class="order-input" id="sellSymbol" placeholder="சின்னம்" value="RELIANCE">
+                                <input type="number" class="order-input" id="sellQuantity" placeholder="அளவு" value="1">
+                            </div>
+                            <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="placeSellOrder()">
+                                <i class="fas fa-check"></i> விற்க ஆர்டர்
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Market Info -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px;">
+                        <div>
+                            <div class="tamil" style="font-size: 12px; color: #666;">LTP</div>
+                            <div id="currentPrice" style="font-weight: bold; font-size: 1.2rem;">₹2,450.00</div>
+                        </div>
+                        <div>
+                            <div class="tamil" style="font-size: 12px; color: #666;">மாற்றம்</div>
+                            <div id="priceChange" class="positive">+12.50 (+0.51%)</div>
+                        </div>
+                        <div>
+                            <div class="tamil" style="font-size: 12px; color: #666;">உயர்</div>
+                            <div id="dayHigh">₹2,465.00</div>
+                        </div>
+                        <div>
+                            <div class="tamil" style="font-size: 12px; color: #666;">தாழ்</div>
+                            <div id="dayLow">₹2,435.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Watchlist & Positions -->
+            <div class="right-panel">
+                <!-- Watchlist -->
+                <div>
+                    <h3 class="tamil"><i class="fas fa-star"></i> வாட்ச்லிஸ்ட்</h3>
+                    
+                    <div style="display: flex; gap: 10px; margin: 10px 0;">
+                        <input type="text" class="order-input" id="watchlistInput" placeholder="பங்கு சேர் (RELIANCE)">
+                        <button class="btn btn-primary" onclick="addToWatchlist()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="watchlist-container">
+                        <table class="watchlist-table">
+                            <thead>
+                                <tr>
+                                    <th class="tamil">பங்கு</th>
+                                    <th class="tamil">LTP</th>
+                                    <th class="tamil">%</th>
+                                    <th class="tamil"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="watchlistBody">
+                                <!-- Watchlist items will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Positions -->
+                <div style="margin-top: 25px;">
+                    <h3 class="tamil"><i class="fas fa-chart-pie"></i> பொசிஷன்கள்</h3>
+                    
+                    <div id="positionsList" style="margin-top: 10px;">
+                        <!-- Positions will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- AI Signals -->
+                <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h4 class="tamil"><i class="fas fa-robot"></i> AI சிக்னல்கள்</h4>
+                    <div id="aiSignals" style="margin-top: 10px;">
+                        <div style="padding: 8px; background: #e8f5e9; border-radius: 5px; margin-bottom: 5px;">
+                            <div class="tamil"><i class="fas fa-arrow-up" style="color: var(--success);"></i> RELIANCE: வாங்கவும்</div>
+                            <div style="font-size: 12px; color: #666;">RSI oversold, MA support</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application Configuration
+        const APP_CONFIG = {
+            appName: "DhassCSC Pro Trading Suite",
+            version: "3.0.0",
+            defaultUser: {
+                username: "admin",
+                password: "admin123",
+                name: "நிர்வாகி",
+                balance: 100000,
+                watchlist: ["RELIANCE", "TCS", "INFY", "HDFCBANK"]
+            }
+        };
+        
+        // Application State
+        let appState = {
+            isLoggedIn: false,
+            currentUser: null,
+            currentSymbol: "RELIANCE",
+            timeframe: "5m",
+            chart: null,
+            watchlist: [],
+            positions: [],
+            transactions: []
+        };
+        
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("App starting...");
+            
+            // Initialize Toastr
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": 3000
+            };
+            
+            // Check if user is already logged in
+            checkLoginStatus();
+            
+            // Initialize real-time clock
+            startRealTimeClock();
+            
+            console.log("App initialized successfully");
+        });
+        
+        // Handle Login
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!username || !password) {
+                showToast('பயனர்பெயர் மற்றும் கடவுச்சொல் உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            showLoading('உள்நுழைகிறது...');
+            
+            // Demo authentication
+            setTimeout(() => {
+                if (username === APP_CONFIG.defaultUser.username && 
+                    password === APP_CONFIG.defaultUser.password) {
+                    
+                    // Login successful
+                    const user = {
+                        ...APP_CONFIG.defaultUser,
+                        lastLogin: new Date().toISOString()
+                    };
+                    
+                    // Save to localStorage
+                    localStorage.setItem('tradingAppUser', JSON.stringify(user));
+                    
+                    // Update app state
+                    appState.isLoggedIn = true;
+                    appState.currentUser = user;
+                    appState.watchlist = user.watchlist || [];
+                    
+                    // Show main app
+                    showMainApp();
+                    
+                    // Initialize components
+                    initializeSimpleChart();
+                    loadWatchlist();
+                    updateBalanceDisplay();
+                    
+                    showToast('வரவேற்கிறோம் ' + user.name, 'success');
+                    
+                } else {
+                    // Login failed
+                    showToast('தவறான பயனர்பெயர் அல்லது கடவுச்சொல்', 'error');
+                }
+                
+                hideLoading();
+            }, 1000);
+        }
+        
+        // Handle Register
+        function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const amount = parseFloat(document.getElementById('regAmount').value) || 0;
+            
+            if (!name || !username || !password) {
+                showToast('அனைத்து விவரங்களையும் உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            showLoading('கணக்கு உருவாக்கப்படுகிறது...');
+            
+            setTimeout(() => {
+                const newUser = {
+                    username: username,
+                    password: password,
+                    name: name,
+                    balance: amount,
+                    watchlist: [],
+                    lastLogin: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('tradingAppUser', JSON.stringify(newUser));
+                
+                // Update app state
+                appState.isLoggedIn = true;
+                appState.currentUser = newUser;
+                
+                // Show main app
+                showMainApp();
+                
+                // Initialize components
+                initializeSimpleChart();
+                loadWatchlist();
+                updateBalanceDisplay();
+                
+                showToast('வரவேற்கிறோம் ' + name, 'success');
+                
+                hideLoading();
+            }, 1500);
+        }
+        
+        // Handle Logout
+        function handleLogout() {
+            if (confirm('நிச்சயமாக வெளியேற விரும்புகிறீர்களா?')) {
+                localStorage.removeItem('tradingAppUser');
+                appState.isLoggedIn = false;
+                appState.currentUser = null;
+                
+                // Show login modal
+                document.getElementById('loginModal').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                
+                showToast('வெற்றிகரமாக வெளியேறியது', 'info');
+            }
+        }
+        
+        // Check Login Status
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('tradingAppUser');
+            
+            if (savedUser) {
+                try {
+                    const user = JSON.parse(savedUser);
+                    appState.isLoggedIn = true;
+                    appState.currentUser = user;
+                    appState.watchlist = user.watchlist || [];
+                    
+                    showMainApp();
+                    initializeSimpleChart();
+                    loadWatchlist();
+                    updateBalanceDisplay();
+                    
+                } catch (error) {
+                    console.error('Error parsing saved user:', error);
+                }
+            }
+        }
+        
+        // Show Main App
+        function showMainApp() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('registerModal').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            // Update user info
+            if (appState.currentUser) {
+                document.getElementById('userName').textContent = appState.currentUser.name;
+                document.getElementById('userAvatar').textContent = appState.currentUser.name.charAt(0);
+            }
+        }
+        
+        // Show Register Modal
+        function showRegister() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('registerModal').style.display = 'flex';
+        }
+        
+        // Show Login Modal
+        function showLogin() {
+            document.getElementById('registerModal').style.display = 'none';
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        
+        // Simple Chart without time axis
+        function initializeSimpleChart() {
+            const ctx = document.getElementById('tradingChart').getContext('2d');
+            
+            // Generate sample data
+            const labels = [];
+            const data = [];
+            let price = 2450;
+            
+            for (let i = 0; i < 50; i++) {
+                labels.push(`T${i+1}`);
+                const change = (Math.random() - 0.5) * 10;
+                price += change;
+                price = Math.max(2400, Math.min(2500, price)); // Keep in range
+                data.push(price);
+            }
+            
+            // Create simple chart
+            appState.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: appState.currentSymbol,
+                        data: data,
+                        borderColor: '#2962ff',
+                        backgroundColor: 'rgba(41, 98, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            
+            // Update market info with last price
+            updateMarketInfo(data[data.length - 1]);
+        }
+        
+        // Update Market Info
+        function updateMarketInfo(currentPrice) {
+            const change = (Math.random() - 0.5) * 25;
+            const percentChange = (change / currentPrice * 100).toFixed(2);
+            
+            document.getElementById('currentPrice').textContent = `₹${currentPrice.toFixed(2)}`;
+            
+            const changeElement = document.getElementById('priceChange');
+            if (change >= 0) {
+                changeElement.textContent = `+${change.toFixed(2)} (+${percentChange}%)`;
+                changeElement.className = 'positive';
+            } else {
+                changeElement.textContent = `${change.toFixed(2)} (${percentChange}%)`;
+                changeElement.className = 'negative';
+            }
+            
+            document.getElementById('dayHigh').textContent = `₹${(currentPrice * 1.01).toFixed(2)}`;
+            document.getElementById('dayLow').textContent = `₹${(currentPrice * 0.99).toFixed(2)}`;
+        }
+        
+        // Load Watchlist
+        function loadWatchlist() {
+            const watchlistBody = document.getElementById('watchlistBody');
+            if (!watchlistBody) return;
+            
+            watchlistBody.innerHTML = '';
+            
+            // Default watchlist if empty
+            if (!appState.watchlist || appState.watchlist.length === 0) {
+                appState.watchlist = APP_CONFIG.defaultUser.watchlist;
+            }
+            
+            // Generate watchlist items
+            appState.watchlist.forEach(symbol => {
+                const price = 1000 + Math.random() * 2000;
+                const change = (Math.random() - 0.5) * 20;
+                const percentChange = (change / price * 100).toFixed(2);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: bold;">${symbol}</div>
+                        <div style="font-size: 12px; color: #666;">${getStockName(symbol)}</div>
+                    </td>
+                    <td>₹${price.toFixed(2)}</td>
+                    <td class="${change >= 0 ? 'positive' : 'negative'}">
+                        ${change >= 0 ? '+' : ''}${percentChange}%
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-small" onclick="removeFromWatchlist('${symbol}')" style="padding: 3px 8px; font-size: 12px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                `;
+                watchlistBody.appendChild(row);
+            });
+        }
+        
+        // Add to Watchlist
+        function addToWatchlist() {
+            const input = document.getElementById('watchlistInput');
+            const symbol = input.value.trim().toUpperCase();
+            
+            if (!symbol) {
+                showToast('பங்கு சின்னத்தை உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            if (appState.watchlist.includes(symbol)) {
+                showToast('பங்கு ஏற்கனவே வாட்ச்லிஸ்டில் உள்ளது', 'warning');
+                return;
+            }
+            
+            appState.watchlist.push(symbol);
+            
+            // Update user in localStorage
+            if (appState.currentUser) {
+                appState.currentUser.watchlist = appState.watchlist;
+                localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+            }
+            
+            // Reload watchlist
+            loadWatchlist();
+            
+            // Clear input
+            input.value = '';
+            
+            showToast(`${symbol} வாட்ச்லிஸ்டில் சேர்க்கப்பட்டது`, 'success');
+        }
+        
+        // Remove from Watchlist
+        function removeFromWatchlist(symbol) {
+            appState.watchlist = appState.watchlist.filter(s => s !== symbol);
+            
+            // Update user in localStorage
+            if (appState.currentUser) {
+                appState.currentUser.watchlist = appState.watchlist;
+                localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+            }
+            
+            // Reload watchlist
+            loadWatchlist();
+            
+            showToast(`${symbol} நீக்கப்பட்டது`, 'info');
+        }
+        
+        // Get Stock Name
+        function getStockName(symbol) {
+            const stockNames = {
+                'RELIANCE': 'ரிலையன்ஸ் இண்டஸ்ட்ரீஸ்',
+                'TCS': 'டாடா கன்சல்டன்சி',
+                'INFY': 'இன்ஃபோசிஸ்',
+                'HDFCBANK': 'எச்.டி.எஃப்.சி வங்கி',
+                'ICICIBANK': 'ஐ.சி.ஐ.சி.ஐ வங்கி',
+                'SBIN': 'ஸ்டேட் பேங்க் ஆஃப் இந்தியா',
+                'BHARTIARTL': 'பார்டி ஏர்டெல்',
+                'ITC': 'ஐ.டி.சி',
+                'WIPRO': 'விப்ரோ',
+                'ONGC': 'ஓ.என்.ஜி.சி',
+                'TATASTEEL': 'டாடா ஸ்டீல்',
+                'AXISBANK': 'ஆக்சிஸ் வங்கி'
+            };
+            
+            return stockNames[symbol] || symbol;
+        }
+        
+        // Update Balance Display
+        function updateBalanceDisplay() {
+            if (appState.currentUser) {
+                document.getElementById('currentBalance').textContent = 
+                    `₹${appState.currentUser.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+            }
+        }
+        
+        // Add Funds
+        function addFunds() {
+            const amount = parseFloat(prompt('சேர்க்க வேண்டிய தொகையை உள்ளிடவும் (₹):'));
+            
+            if (!amount || amount <= 0) {
+                showToast('சரியான தொகையை உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            if (appState.currentUser) {
+                appState.currentUser.balance += amount;
+                
+                // Save to localStorage
+                localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+                
+                // Update display
+                updateBalanceDisplay();
+                
+                // Add transaction
+                addTransaction('CREDIT', amount, 'Funds Added');
+                
+                showToast(`₹${amount} வெற்றிகரமாக சேர்க்கப்பட்டது`, 'success');
+            }
+        }
+        
+        // Quick Add Funds
+        function quickAddFunds() {
+            const amountInput = document.getElementById('fundAmount');
+            const method = document.getElementById('fundMethod').value;
+            
+            const amount = parseFloat(amountInput.value);
+            
+            if (!amount || amount <= 0) {
+                showToast('சரியான தொகையை உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            if (appState.currentUser) {
+                appState.currentUser.balance += amount;
+                
+                // Save to localStorage
+                localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+                
+                // Update display
+                updateBalanceDisplay();
+                
+                // Add transaction
+                addTransaction('CREDIT', amount, `Funds via ${method}`);
+                
+                // Clear input
+                amountInput.value = '';
+                
+                showToast(`₹${amount} வெற்றிகரமாக சேர்க்கப்பட்டது`, 'success');
+            }
+        }
+        
+        // Withdraw Funds
+        function withdrawFunds() {
+            const amount = parseFloat(prompt('திரும்பப் பெற வேண்டிய தொகை (₹):'));
+            
+            if (!amount || amount <= 0) {
+                showToast('சரியான தொகையை உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            if (appState.currentUser) {
+                if (amount > appState.currentUser.balance) {
+                    showToast('போதுமான இருப்பு இல்லை', 'error');
+                    return;
+                }
+                
+                appState.currentUser.balance -= amount;
+                
+                // Save to localStorage
+                localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+                
+                // Update display
+                updateBalanceDisplay();
+                
+                // Add transaction
+                addTransaction('DEBIT', amount, 'Funds Withdrawn');
+                
+                showToast(`₹${amount} திரும்பப் பெறப்பட்டது`, 'success');
+            }
+        }
+        
+        // Add Transaction
+        function addTransaction(type, amount, description) {
+            const transaction = {
+                id: Date.now(),
+                type: type,
+                amount: amount,
+                description: description,
+                date: new Date().toISOString()
+            };
+            
+            // Load existing transactions
+            let transactions = JSON.parse(localStorage.getItem('userTransactions') || '[]');
+            transactions.push(transaction);
+            
+            // Save transactions
+            localStorage.setItem('userTransactions', JSON.stringify(transactions));
+            
+            appState.transactions = transactions;
+        }
+        
+        // View Transactions
+        function viewTransactions() {
+            const transactionsList = document.getElementById('transactionsList');
+            
+            if (transactionsList.style.display === 'none') {
+                // Load transactions
+                const transactions = JSON.parse(localStorage.getItem('userTransactions') || '[]');
+                
+                if (transactions.length === 0) {
+                    transactionsList.innerHTML = `
+                        <p class="tamil" style="text-align: center; color: #666; padding: 20px;">
+                            பரிவர்த்தனைகள் இல்லை
+                        </p>
+                    `;
+                } else {
+                    let html = '';
+                    transactions.slice(-5).reverse().forEach(t => {
+                        const date = new Date(t.date).toLocaleDateString('ta-IN');
+                        
+                        html += `
+                            <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                                <div>
+                                    <div class="tamil">${t.description}</div>
+                                    <div style="font-size: 12px; color: #666;">${date}</div>
+                                </div>
+                                <div style="font-weight: bold; color: ${t.type === 'CREDIT' ? 'var(--success)' : 'var(--danger)'}">
+                                    ${t.type === 'CREDIT' ? '+' : '-'}₹${t.amount.toFixed(2)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    transactionsList.innerHTML = html;
+                }
+                
+                transactionsList.style.display = 'block';
+            } else {
+                transactionsList.style.display = 'none';
+            }
+        }
+        
+        // Place Buy Order
+        function placeBuyOrder() {
+            const symbol = document.getElementById('buySymbol').value.trim().toUpperCase();
+            const quantity = parseInt(document.getElementById('buyQuantity').value);
+            
+            if (!symbol || !quantity || quantity < 1) {
+                showToast('சரியான விவரங்களை உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            const price = 2450; // Mock price
+            const total = price * quantity;
+            
+            if (appState.currentUser.balance < total) {
+                showToast('போதுமான இருப்பு இல்லை', 'error');
+                return;
+            }
+            
+            // Update balance
+            appState.currentUser.balance -= total;
+            localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+            updateBalanceDisplay();
+            
+            // Add transaction
+            addTransaction('DEBIT', total, `BUY ${quantity} ${symbol} @ ₹${price}`);
+            
+            // Add to positions
+            addPosition(symbol, quantity, price, 'BUY');
+            
+            showToast(`${quantity} ${symbol} வாங்க ஆர்டர் வெற்றி`, 'success');
+        }
+        
+        // Place Sell Order
+        function placeSellOrder() {
+            const symbol = document.getElementById('sellSymbol').value.trim().toUpperCase();
+            const quantity = parseInt(document.getElementById('sellQuantity').value);
+            
+            if (!symbol || !quantity || quantity < 1) {
+                showToast('சரியான விவரங்களை உள்ளிடவும்', 'error');
+                return;
+            }
+            
+            const price = 2450; // Mock price
+            const total = price * quantity;
+            
+            // Update balance
+            appState.currentUser.balance += total;
+            localStorage.setItem('tradingAppUser', JSON.stringify(appState.currentUser));
+            updateBalanceDisplay();
+            
+            // Add transaction
+            addTransaction('CREDIT', total, `SELL ${quantity} ${symbol} @ ₹${price}`);
+            
+            showToast(`${quantity} ${symbol} விற்க ஆர்டர் வெற்றி`, 'success');
+        }
+        
+        // Add Position
+        function addPosition(symbol, quantity, price, type) {
+            // This would be more complex in a real app
+            console.log('Position added:', { symbol, quantity, price, type });
+        }
+        
+        // Toggle Indicator
+        function toggleIndicator(indicator) {
+            const card = event.currentTarget;
+            card.classList.toggle('active');
+            
+            showToast(`${indicator} ${card.classList.contains('active') ? 'இயக்கப்பட்டது' : 'முடக்கப்பட்டது'}`, 'info');
+        }
+        
+        // Change Timeframe
+        function changeTimeframe(tf) {
+            // Update active button
+            document.querySelectorAll('.chart-container .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update chart title
+            document.getElementById('chartTitle').textContent = 
+                `${appState.currentSymbol} - ${tf.toUpperCase()} சார்ட்`;
+            
+            showToast(`நேரம் மாற்றப்பட்டது: ${tf}`, 'info');
+        }
+        
+        // Real-time Clock
+        function startRealTimeClock() {
+            function updateClock() {
+                const now = new Date();
+                
+                // Update time
+                const timeStr = now.toLocaleTimeString('ta-IN', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                // Update date
+                const dateStr = now.toLocaleDateString('ta-IN', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Update market status
+                const hour = now.getHours();
+                const minute = now.getMinutes();
+                const day = now.getDay(); // 0 = Sunday
+                
+                const isWeekday = day >= 1 && day <= 5;
+                let marketStatus = 'சந்தை மூடியது';
+                
+                if (isWeekday) {
+                    if (hour >= 9 && hour < 15) {
+                        if (hour === 9 && minute < 15) {
+                            marketStatus = 'ப்ரீ-மார்க்கெட்';
+                        } else if (hour === 15 && minute > 30) {
+                            marketStatus = 'அஃப்டர்-மார்க்கெட்';
+                        } else {
+                            marketStatus = 'சந்தை திறந்தது';
+                        }
+                    }
+                }
+                
+                // Update DOM
+                const clockElement = document.getElementById('realtimeClock');
+                if (clockElement) {
+                    clockElement.querySelector('.clock-time').textContent = timeStr;
+                    clockElement.querySelector('.clock-date').textContent = dateStr;
+                    clockElement.querySelector('.market-status').textContent = marketStatus;
+                    
+                    // Add color based on market status
+                    const statusElement = clockElement.querySelector('.market-status');
+                    if (marketStatus === 'சந்தை திறந்தது') {
+                        statusElement.style.background = '#00c853';
+                    } else if (marketStatus === 'ப்ரீ-மார்க்கெட்' || marketStatus === 'அஃப்டர்-மார்க்கெட்') {
+                        statusElement.style.background = '#ffab00';
+                    } else {
+                        statusElement.style.background = '#ff3d00';
+                    }
+                }
+            }
+            
+            // Update immediately and every second
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+        
+        // Show Loading
+        function showLoading(message) {
+            document.getElementById('loadingText').textContent = message || 'ஏற்றுகிறது...';
+            document.getElementById('loadingSpinner').style.display = 'flex';
+        }
+        
+        // Hide Loading
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+        
+        // Show Toast
+        function showToast(message, type = 'info') {
+            toastr[type](message);
+        }
+    </script>
+</body>
+</html>
